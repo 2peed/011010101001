@@ -1,8 +1,3 @@
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 import nextcord
 from nextcord.ext import commands, tasks
 from nextcord.ext.commands import has_permissions, CheckFailure, check, MissingPermissions
@@ -11,6 +6,10 @@ from settings import *
 from room import *
 import datetime
 import asyncio
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 client = nextcord.Client()
 
@@ -28,8 +27,8 @@ async def on_ready():
         bruteforce = []
         await asyncio.sleep(60)
 
-@client.slash_command(guild_ids=[settings.svrid], description="Bot gecikmesini öğrenin.")
-async def ping(inter: Interaction):
+@client.slash_command(guild_ids=[settings.svrid],description="Bot gecikmesini öğrenin.")
+async def ping(inter : Interaction):
     embed = nextcord.Embed(
         title="Pong!",
         description=f"Gecikme süresi: {str(client.latency)[0:4]}",
@@ -37,30 +36,28 @@ async def ping(inter: Interaction):
     )
     await inter.response.send_message(embed=embed)
 
-@client.slash_command(guild_ids=[settings.svrid], description="Sohbet odanızı adlandırın.", name="adlandır")
-async def rename(inter: Interaction, ad: str):
+@client.slash_command(guild_ids=[settings.svrid],description="Sohbet odanızı adlandırın.",name="adlandır")
+async def rename(inter : Interaction, ad : str):
     for room in roomlist:
         if room.owner == inter.user.id:
             await room.obj.edit(name=ad)
             embed = nextcord.Embed(title="Başarılı!", description="Odan başarıyla adlandırıldı.", color=settings.color)
             return await inter.response.send_message(embed=embed)
-
     embed = nextcord.Embed(title="Hata!", description="Şuanda özel bir sohbet odan yok.", color=settings.color)
     return await inter.response.send_message(embed=embed)
 
-@client.slash_command(guild_ids=[settings.svrid], description="Sohbet odanıza girebilecek kişileri belirleyin.", name="beyaz-liste")
-async def whitelist(inter: Interaction, kullanıcı: nextcord.Member):
+@client.slash_command(guild_ids=[settings.svrid],description="Sohbet odanıza girebilecek kişileri belirleyin.",name="beyaz-liste")
+async def whitelist(inter : Interaction, kullanıcı : nextcord.Member):
     for room in roomlist:
         if room.owner == inter.user.id:
             room.addwhitelist(kullanıcı.id)
             embed = nextcord.Embed(title="Başarılı!", description="Kullanıcı beyaz listeye eklendi.", color=settings.color)
             return await inter.response.send_message(embed=embed)
-
     embed = nextcord.Embed(title="Hata!", description="Şuanda özel bir sohbet odan yok.", color=settings.color)
     return await inter.response.send_message(embed=embed)
 
-@client.slash_command(guild_ids=[settings.svrid], description="Sohbet odanızın beyaz listesinden bir kullanıcıyı kaldırın.", name="beyaz-liste-kaldır")
-async def unwhitelist(inter: Interaction, kullanıcı: nextcord.Member):
+@client.slash_command(guild_ids=[settings.svrid],description="Sohbet odanızın beyaz listesinden bir kullanıcıyı kaldırın.",name="beyaz-liste-kaldır")
+async def unwhitelist(inter : Interaction, kullanıcı : nextcord.Member):
     for room in roomlist:
         if room.owner == inter.user.id:
             try:
@@ -68,26 +65,15 @@ async def unwhitelist(inter: Interaction, kullanıcı: nextcord.Member):
                 embed = nextcord.Embed(title="Başarılı!", description="Kullanıcı beyaz listeden kaldırıldı.", color=settings.color)
                 return await inter.response.send_message(embed=embed)
             except:
-                break
-
-    embed = nextcord.Embed(title="Hata!", description="Kullanıcı bulunamadı.", color=settings.color)
-    return await inter.response.send_message(embed=embed)
-
-@client.slash_command(guild_ids=[settings.svrid], description="Sohbet odanıza giremeyecek kişileri belirleyin.", name="kara-liste")
-async def blacklist(inter: Interaction, kullanıcı: nextcord.Member):
-    for room in roomlist:
-        if room.owner == inter.user.id:
-            room.addblacklist(kullanıcı.id)
-            embed = nextcord.Embed(title="Başarılı!", description="Kullanıcı kara listeye eklendi.", color=settings.color)
-            return await inter.response.send_message(embed=embed)
-
+                embed = nextcord.Embed(title="Hata!", description="Kullanıcı beyaz listede bulunamadı.", color=settings.color)
+                return await inter.response.send_message(embed=embed)
     embed = nextcord.Embed(title="Hata!", description="Şuanda özel bir sohbet odan yok.", color=settings.color)
     return await inter.response.send_message(embed=embed)
 
 @client.event
 async def on_voice_state_update(member, before, after):
     try:
-        if after.channel and after.channel.id == settings.vcid:
+        if after.channel.id == settings.vcid:
             channel = await member.guild.create_voice_channel(
                 str(member.display_name),
                 category=nextcord.utils.get(member.guild.categories, id=settings.catid),
@@ -106,10 +92,11 @@ async def on_voice_state_update(member, before, after):
 
     try:
         for room in roomlist:
-            if before.channel and room.id == before.channel.id and room.count() == 0:
+            if room.id == before.channel.id and room.count() == 0:
                 await room.delete()
                 roomlist.remove(room)
     except:
         pass
 
-client.run(os.getenv("TOKEN"))
+TOKEN = os.getenv("TOKEN")
+client.run(TOKEN)
