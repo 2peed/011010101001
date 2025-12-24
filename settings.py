@@ -1,16 +1,15 @@
 import json
 import nextcord
-import os  # bunu ekledik, token için
+import os
 
 class Settings:
     def __init__(self):
         
-        with open("settings.json") as f:
-            sett = json.loads(f.read())
-            f.close()
+        with open(os.path.join(os.path.dirname(__file__), "settings.json")) as f:
+            sett = json.load(f)
 
-        # TOKEN artık burada yok, .env dosyasından alınacak
-        self.token = os.getenv("TOKEN")  # Token artık burada da okunabilir, opsiyonel
+        # TOKEN artık .env dosyasından alınacak
+        self.token = os.getenv("TOKEN")
 
         self.svrid = sett["server-id"]
         self.catid = sett["category-id"]
